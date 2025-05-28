@@ -57,16 +57,19 @@ class _CompletePageState extends State<CompletePage> {
   void updatePage(int index) {
     switch (index) {
       case 0:
-        currentPage = const MyHomePage();
+        currentPage = const MyHomePage(key: ValueKey('home'));
         break;
       case 1:
-        currentPage = const Center(child: Text("Favorites Page"));
+        currentPage = const Center(
+          key: ValueKey('favorites'),
+          child: Text("Favorites Page"),
+        );
         break;
       case 2:
-        currentPage = const SettingsPage();
+        currentPage = const SettingsPage(key: ValueKey('settings'));
         break;
       case 3:
-        currentPage = const AboutPage();
+        currentPage = const AboutPage(key: ValueKey('about'));
         break;
       default:
         throw UnimplementedError("No page for index $index");
@@ -80,7 +83,12 @@ class _CompletePageState extends State<CompletePage> {
         title: const Text("Quote of the Day"),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
-      body: currentPage,
+      body: AnimatedSwitcher(
+        duration: Duration(milliseconds: 100),
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: currentPage,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
