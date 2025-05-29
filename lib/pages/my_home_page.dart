@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_daily_quote_app/main.dart';
-import 'package:flutter_daily_quote_app/quote_countdown.dart';
+import 'package:flutter_daily_quote_app/assets/quote_widget.dart';
+import 'package:flutter_daily_quote_app/assets/quote_countdown.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
