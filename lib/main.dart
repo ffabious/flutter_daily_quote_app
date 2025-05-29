@@ -59,15 +59,21 @@ class MyApp extends StatelessWidget {
 
 class MyAppState extends ChangeNotifier {
   ThemeMode? themeMode;
+  FontStyle? fontStyle;
 
   MyAppState() {
-    _loadThemeMode();
+    _loadInitState();
   }
 
-  Future<void> _loadThemeMode() async {
+  Future<void> _loadInitState() async {
     final prefs = await SharedPreferences.getInstance();
+
     final isDarkMode = prefs.getBool('isDarkMode') ?? false;
     themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+
+    final isItalic = prefs.getBool('isItalic') ?? false;
+    fontStyle = isItalic ? FontStyle.italic : FontStyle.normal;
+
     notifyListeners();
   }
 
@@ -76,6 +82,15 @@ class MyAppState extends ChangeNotifier {
     final prefs = SharedPreferences.getInstance();
     prefs.then((preferences) {
       preferences.setBool('isDarkMode', isDark);
+    });
+    notifyListeners();
+  }
+
+  void toggleItalicStyle(bool isItalic) {
+    fontStyle = isItalic ? FontStyle.italic : FontStyle.normal;
+    final prefs = SharedPreferences.getInstance();
+    prefs.then((preferences) {
+      preferences.setBool('isItalic', isItalic);
     });
     notifyListeners();
   }
@@ -183,28 +198,67 @@ class _SettingsPageState extends State<SettingsPage> {
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.dark_mode),
-                SizedBox(width: 10),
-                Text("Dark Mode"),
-                SizedBox(width: 10),
-                Switch(
-                  value: isDarkMode,
-                  onChanged: (bool value) {
-                    setState(() {
-                      appState.toggleDarkMode(value);
-                      toggleIsDarkMode();
-                    });
-                  },
-                ),
-              ],
+            SizedBox(
+              width: 0.3 * MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.dark_mode),
+                      SizedBox(width: 10),
+                      Text("Dark Mode"),
+                    ],
+                  ),
+                  Switch(
+                    value: isDarkMode,
+                    onChanged: (bool value) {
+                      setState(() {
+                        appState.toggleDarkMode(value);
+                        toggleIsDarkMode();
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 0.3 * MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.format_italic),
+                      SizedBox(width: 10),
+                      Text("Italic Font"),
+                    ],
+                  ),
+                  Switch(
+                    value: appState.fontStyle == FontStyle.italic,
+                    onChanged: (bool value) {
+                      setState(() {
+                        appState.toggleItalicStyle(value);
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Add functionality to clear cache or reset settings
+                setState(() {
+                  appState.toggleDarkMode(false);
+                  appState.toggleItalicStyle(false);
+                  isDarkMode = false;
+                });
+                final prefs = SharedPreferences.getInstance();
+                prefs.then((preferences) {
+                  preferences.setBool('isDarkMode', false);
+                  preferences.setBool('isItalic', false);
+                });
               },
               child: const Text("Reset Settings"),
             ),
@@ -243,6 +297,8 @@ class QuoteWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<MyAppState>(context);
+    final fontStyle = appState.fontStyle ?? FontStyle.normal;
     return FutureBuilder<String>(
       future: fetchQuote(),
       builder: (context, snapshot) {
@@ -253,7 +309,7 @@ class QuoteWidget extends StatelessWidget {
         }
         return Text(
           snapshot.data ?? 'No quote available',
-          style: const TextStyle(fontSize: 24, fontStyle: FontStyle.italic),
+          style: TextStyle(fontSize: 24, fontStyle: fontStyle),
           textAlign: TextAlign.center,
         );
       },
