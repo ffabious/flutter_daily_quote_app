@@ -7,9 +7,15 @@ import 'package:flutter_daily_quote_app/my_home_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -26,20 +32,52 @@ class MyApp extends StatelessWidget {
       await windowManager.focus();
     });
 
+    var lightTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: Brightness.light,
+      ),
+    );
+    var darkTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: Brightness.dark,
+      ),
+    );
+
+    final appState = Provider.of<MyAppState>(context);
+
     return MaterialApp(
       title: "Quote of te Day",
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
-      themeMode: ThemeMode.light,
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: appState.themeMode,
       home: const CompletePage(),
     );
+  }
+}
+
+class MyAppState extends ChangeNotifier {
+  ThemeMode? themeMode;
+
+  MyAppState() {
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+
+  void toggleDarkMode(bool isDark) {
+    themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    final prefs = SharedPreferences.getInstance();
+    prefs.then((preferences) {
+      preferences.setBool('isDarkMode', isDark);
+    });
+    notifyListeners();
   }
 }
 
@@ -131,6 +169,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<MyAppState>(context);
+    isDarkMode = appState.themeMode == ThemeMode.dark;
+
     return Center(
       child: SizedBox(
         width: 0.8 * MediaQuery.of(context).size.width,
@@ -153,6 +194,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: isDarkMode,
                   onChanged: (bool value) {
                     setState(() {
+                      appState.toggleDarkMode(value);
                       toggleIsDarkMode();
                     });
                   },
