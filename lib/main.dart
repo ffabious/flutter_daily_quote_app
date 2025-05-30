@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
     final appState = Provider.of<MyAppState>(context);
 
     return MaterialApp(
-      title: "Quote of te Day",
+      title: "Quote of the Day",
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
