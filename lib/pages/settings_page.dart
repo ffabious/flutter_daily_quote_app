@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daily_quote_app/assets/my_app_state.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_daily_quote_app/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
