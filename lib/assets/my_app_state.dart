@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MyAppState extends ChangeNotifier {
   ThemeMode? themeMode;
   FontStyle? fontStyle;
+  String? dailyQuote;
+  String? lastFetchDate;
 
   MyAppState() {
     _loadInitState();
@@ -18,6 +20,9 @@ class MyAppState extends ChangeNotifier {
 
     final isItalic = prefs.getBool('isItalic') ?? false;
     fontStyle = isItalic ? FontStyle.italic : FontStyle.normal;
+
+    dailyQuote = prefs.getString('dailyQuote');
+    lastFetchDate = prefs.getString('lastFetchDate');
 
     notifyListeners();
   }
