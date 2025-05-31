@@ -50,6 +50,7 @@ class DailyQuoteRetriever extends StatelessWidget {
       final quote = '"${data[0]['q']}" - ${data[0]['a']}';
       await prefs.setString('daily_quote', quote);
       await prefs.setString('last_fetch_date', today);
+      await prefs.setBool('is_liked', false);
       return quote;
     } else {
       throw Exception('Failed to load quote');

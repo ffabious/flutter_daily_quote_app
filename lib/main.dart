@@ -72,10 +72,7 @@ class _CompletePageState extends State<CompletePage> {
         currentPage = const MyHomePage(key: ValueKey('home'));
         break;
       case 1:
-        currentPage = const Center(
-          key: ValueKey('favorites'),
-          child: Text("Favorites Page"),
-        );
+        currentPage = FavoritesPage(key: ValueKey('favorites'));
         break;
       case 2:
         currentPage = const SettingsPage(key: ValueKey('settings'));
@@ -122,6 +119,40 @@ class _CompletePageState extends State<CompletePage> {
           });
         },
         type: BottomNavigationBarType.fixed,
+      ),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  const FavoritesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var appState = Provider.of<MyAppState>(context);
+    return Center(
+      child: SizedBox(
+        width: 0.8 * MediaQuery.of(context).size.width,
+        child: ListView.builder(
+          itemCount: appState.likedQuotes.length,
+          itemBuilder: (context, index) {
+            final quote = appState.likedQuotes[index];
+            return Card(
+              child: ListTile(
+                title: Text(
+                  quote,
+                  style: TextStyle(fontSize: 18, fontStyle: appState.fontStyle),
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    appState.unlikeQuote(quote);
+                  },
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
